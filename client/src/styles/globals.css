@@ -1,0 +1,72 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Manrope:wght@600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Inter", system-ui, sans-serif;
+  color: #1b2430;
+  background: #f6f7f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --background: #f6f7f5;
+  --foreground: #1b2430;
+  --card: #ffffff;
+  --card-foreground: #1b2430;
+  --primary: #17324d;
+  --primary-foreground: #ffffff;
+  --accent: #f2a900;
+  --accent-foreground: #3a2a00;
+  --muted: #eef0ec;
+  --muted-foreground: #5b6670;
+  --border: #e2e5e0;
+  --input: #e2e5e0;
+  --ring: #17324d;
+  --destructive: #b3261e;
+  --radius: 8px;
+
+  --land-agricultural: #7bb661;
+  --land-residential: #f0a35e;
+  --land-commercial: #5b8fd6;
+  --land-wetland: #5dbfb4;
+  --land-government: #a7b0ba;
+  --risk-low: #2e7d4f;
+  --risk-medium: #d69e00;
+  --risk-high: #e26a2c;
+  --risk-critical: #b3261e;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

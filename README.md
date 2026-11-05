@@ -39,9 +39,11 @@ React + TypeScript + Vite + Tailwind + shadcn/ui + react-router + React Query + 
 
 Put these files in `/docs` and copy `AGENTS.md` to the repo root so the coding agent loads it automatically.
 
-## Quick start (after Phase 0 is built)
+## Quick start (Phase 0)
 
-1. Install dependencies in `client` and `server`.
-2. Copy `.env.example` to `.env` and fill values.
-3. Run the seed script, then start both apps.
-4. Log in with the seeded authority account (see `Seed_Data_Spec.md`).
+1. Install dependencies from the repository root with `npm install`.
+2. Copy `.env.example` to `.env`; start MongoDB locally if you want the database connection to report as connected.
+3. Run `npm run dev` from the repository root to start the client and API together.
+4. Open `http://127.0.0.1:5173`. The placeholder page reports the API response and database connection state.
+
+The health endpoint is available at `http://127.0.0.1:4000/api/health`. Later-phase scripts are present as explicit stubs until their phases are implemented.
