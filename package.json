@@ -13,9 +13,10 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "node -e \"console.error('Playwright tests are introduced in Phase 9.'); process.exit(1)\"",
-    "seed": "node -e \"console.error('Seeding is introduced in Phase 2.'); process.exit(1)\"",
-    "demo:tamper": "node -e \"console.error('The tamper demo is introduced in Phase 2.'); process.exit(1)\"",
-    "demo:reset": "node -e \"console.error('The demo reset is introduced in Phase 2.'); process.exit(1)\""
+    "seed": "npm run seed --workspace server",
+    "seed:check": "npm run seed:check --workspace server",
+    "demo:tamper": "npm run demo:tamper --workspace server",
+    "demo:reset": "npm run demo:reset --workspace server"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

@@ -89,6 +89,7 @@ A three-tier web app: React SPA, Express JSON API, MongoDB.
 | `COOKIE_SECURE` | true in production |
 | `AREA_SCALE` | Map-unit-squared to decimal conversion |
 | `SEED_AUTHORITY_EMAIL` / `SEED_AUTHORITY_PASSWORD` | Seeded authority login |
+| `SEED_DEMO_USER_PASSWORD` | Password for the seeded demo user |
 
 ## 7. Scripts (to be created in Phase 0 and 2)
 

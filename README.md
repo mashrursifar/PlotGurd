@@ -39,11 +39,15 @@ React + TypeScript + Vite + Tailwind + shadcn/ui + react-router + React Query + 
 
 Put these files in `/docs` and copy `AGENTS.md` to the repo root so the coding agent loads it automatically.
 
-## Quick start (Phase 0)
+## Quick start
 
 1. Install dependencies from the repository root with `npm install`.
-2. Copy `.env.example` to `.env`; start MongoDB locally if you want the database connection to report as connected.
-3. Run `npm run dev` from the repository root to start the client and API together.
-4. Open `http://127.0.0.1:5173`. The placeholder page reports the API response and database connection state.
+2. Copy `.env.example` to `.env`, set both seed passwords, and start MongoDB.
+3. Run `npm run seed` from the repository root to reset and load the fictional mouza.
+4. Run `npm run seed:check` to verify the planted risk cases and ledger chains.
+5. Run `npm run dev` to start the client and API together.
+6. Open `http://127.0.0.1:5173`.
 
-The health endpoint is available at `http://127.0.0.1:4000/api/health`. Later-phase scripts are present as explicit stubs until their phases are implemented.
+`npm run demo:tamper` intentionally corrupts dag 18 ledger entry 2 for the integrity demo. Use `npm run demo:reset` to restore the seed data.
+
+The health endpoint is available at `http://127.0.0.1:4000/api/health`. Later-phase API and UI workflows are added as their phases are implemented.
