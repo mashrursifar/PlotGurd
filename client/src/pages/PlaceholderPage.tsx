@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 import { getHealth } from "../lib/api-client";
 
 export default function PlaceholderPage() {
+  const location = useLocation();
   const healthQuery = useQuery({
     queryKey: ["health"],
     queryFn: getHealth,
@@ -11,9 +13,14 @@ export default function PlaceholderPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center gap-4 px-6">
       <p className="text-sm font-semibold text-muted-foreground">PlotGuard</p>
-      <h1 className="font-heading text-3xl font-bold">Project foundation</h1>
+      {isForbiddenRedirect(location.state) && (
+        <p className="text-sm text-destructive" role="alert">
+          Authority access is restricted to authority accounts.
+        </p>
+      )}
+      <h1 className="font-heading text-3xl font-bold">Welcome to PlotGuard</h1>
       <p className="text-muted-foreground">
-        The application skeleton is ready for Phase 1.
+        Your account is ready. Parcel browsing will be available soon.
       </p>
       <section
         aria-live="polite"
@@ -31,5 +38,14 @@ export default function PlaceholderPage() {
         )}
       </section>
     </main>
+  );
+}
+
+function isForbiddenRedirect(state: unknown): boolean {
+  return (
+    typeof state === "object" &&
+    state !== null &&
+    "forbidden" in state &&
+    state.forbidden === true
   );
 }

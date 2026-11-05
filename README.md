@@ -42,7 +42,7 @@ Put these files in `/docs` and copy `AGENTS.md` to the repo root so the coding a
 ## Quick start
 
 1. Install dependencies from the repository root with `npm install`.
-2. Copy `.env.example` to `.env`, set both seed passwords, and start MongoDB.
+2. Copy `.env.example` to `.env`, replace `JWT_SECRET` with a private random value of at least 32 characters, set both seed passwords, and start MongoDB.
 3. Run `npm run seed` from the repository root to reset and load the fictional mouza.
 4. Run `npm run seed:check` to verify the planted risk cases and ledger chains.
 5. Run `npm run dev` to start the client and API together.

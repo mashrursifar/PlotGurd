@@ -28,6 +28,9 @@ export default {
         input: "var(--input)",
         ring: "var(--ring)",
         destructive: "var(--destructive)",
+        "primary-hover": "var(--primary-hover)",
+        "primary-pressed": "var(--primary-pressed)",
+        "nav-hover": "var(--nav-hover)",
       },
       borderRadius: {
         lg: "12px",
@@ -39,6 +42,10 @@ export default {
         card: "0 1px 2px rgba(23, 50, 77, 0.06), 0 4px 12px rgba(23, 50, 77, 0.06)",
         panel: "0 8px 30px rgba(23, 50, 77, 0.14)",
         control: "0 2px 8px rgba(23, 50, 77, 0.12)",
+      },
+      fontSize: {
+        label: ["13px", { lineHeight: "18px" }],
+        brand: ["32px", { lineHeight: "40px" }],
       },
       fontFamily: {
         heading: ["Manrope", "system-ui", "sans-serif"],

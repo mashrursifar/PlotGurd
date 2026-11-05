@@ -19,9 +19,10 @@ export function successResponse<T>(data: T): SuccessResponse<T> {
 export function failureResponse(
   code: string,
   message: string,
+  details: unknown[] = [],
 ): FailureResponse {
   return {
     success: false,
-    error: { code, message, details: [] },
+    error: { code, message, details },
   };
 }
