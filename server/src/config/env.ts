@@ -8,6 +8,7 @@ const envSchema = z.object({
     .min(1)
     .default("mongodb://127.0.0.1:27017/plot"),
   CLIENT_ORIGIN: z.string().url().default("http://127.0.0.1:5173"),
+  AREA_SCALE: z.coerce.number().positive().finite().default(1),
 });
 
 export const env = envSchema.parse(process.env);
