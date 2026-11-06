@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { getParcelDetail, type ParcelMapItem } from "../../lib/api-client";
 import { HistoryTab } from "./HistoryTab";
+import { RiskTab } from "../risk/RiskTab";
 
 interface ParcelPanelProps {
   parcel: Pick<ParcelMapItem, "id" | "dagNumber">;
@@ -30,7 +31,9 @@ function formatArea(value: number): string {
 }
 
 export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
-  const [activeTab, setActiveTab] = useState<"details" | "history">("details");
+  const [activeTab, setActiveTab] = useState<"details" | "history" | "risk">(
+    "details",
+  );
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const detailQuery = useQuery({
     queryKey: ["parcel", parcel.id],
@@ -42,7 +45,7 @@ export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
   }, [parcel.id]);
 
   function handleTabKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
-    const tabs = ["details", "history"] as const;
+    const tabs = ["details", "history", "risk"] as const;
     const currentIndex = tabs.indexOf(activeTab);
     let nextIndex: number | null = null;
 
@@ -101,7 +104,7 @@ export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
         onKeyDown={handleTabKeyDown}
         role="tablist"
       >
-        {(["details", "history"] as const).map((tab, index) => (
+        {(["details", "history", "risk"] as const).map((tab, index) => (
           <button
             aria-controls={`parcel-${tab}-panel`}
             aria-selected={activeTab === tab}
@@ -253,6 +256,16 @@ export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
             tabIndex={0}
           >
             <HistoryTab parcelId={parcel.id} />
+          </div>
+        )}
+        {activeTab === "risk" && (
+          <div
+            aria-labelledby="parcel-risk-tab"
+            id="parcel-risk-panel"
+            role="tabpanel"
+            tabIndex={0}
+          >
+            <RiskTab parcelId={parcel.id} />
           </div>
         )}
       </div>

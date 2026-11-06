@@ -47,9 +47,17 @@
   --map-river-edge: #9cc3de;
   --map-dispute: #c0392b;
   --risk-low: #2e7d4f;
+  --risk-low-soft: #e6f4ea;
+  --risk-low-text: #1e5a37;
   --risk-medium: #d69e00;
+  --risk-medium-soft: #fff6d6;
+  --risk-medium-text: #6b4e00;
   --risk-high: #e26a2c;
+  --risk-high-soft: #fde9dc;
+  --risk-high-text: #8a3a0f;
   --risk-critical: #b3261e;
+  --risk-critical-soft: #fdecea;
+  --risk-critical-text: #8c1c16;
   --integrity-valid: #2e7d4f;
   --integrity-valid-soft: #e6f4ea;
   --integrity-valid-text: #1e5a37;
@@ -90,6 +98,22 @@ body {
 
 .parcel-label::before {
   display: none;
+}
+
+.risk-finding-enter {
+  animation: risk-finding-enter 220ms ease-out both;
+}
+
+@keyframes risk-finding-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .parcel-dispute-badge {

@@ -46,6 +46,14 @@ export function AuthenticatedLayout() {
             >
               Map
             </NavLink>
+            <NavLink
+              className={({ isActive }) =>
+                `border-b-2 py-4 ${isActive ? "border-accent" : "border-transparent"}`
+              }
+              to="/risk/mine"
+            >
+              My assessments
+            </NavLink>
             {auth.isAuthority && (
               <NavLink
                 className={({ isActive }) =>

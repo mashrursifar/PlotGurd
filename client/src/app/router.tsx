@@ -13,6 +13,13 @@ const MapPage = lazy(() =>
     default: mapPage,
   })),
 );
+const MyAssessmentsPage = lazy(() =>
+  import("../features/risk/MyAssessmentsPage").then(
+    ({ MyAssessmentsPage: myAssessmentsPage }) => ({
+      default: myAssessmentsPage,
+    }),
+  ),
+);
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +58,23 @@ export const router = createBrowserRouter([
                 }
               >
                 <MapPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/risk/mine",
+            element: (
+              <Suspense
+                fallback={
+                  <main
+                    aria-label="Loading risk assessments"
+                    className="mx-auto min-h-[calc(100dvh-3.5rem)] max-w-5xl p-6"
+                  >
+                    <span className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+                  </main>
+                }
+              >
+                <MyAssessmentsPage />
               </Suspense>
             ),
           },

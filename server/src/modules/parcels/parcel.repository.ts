@@ -8,6 +8,10 @@ export async function findParcelById(id: string): Promise<Parcel | null> {
   return ParcelModel.findById(id).lean().exec();
 }
 
+export async function findParcelsByIds(ids: readonly string[]): Promise<Parcel[]> {
+  return ParcelModel.find({ _id: { $in: ids } }).lean().exec();
+}
+
 export async function findParcelByDag(
   mouza: string,
   dagNumber: string,

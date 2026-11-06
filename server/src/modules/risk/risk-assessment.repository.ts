@@ -23,7 +23,25 @@ export async function listAssessmentsForUser(
   userId: string,
 ): Promise<RiskAssessment[]> {
   return RiskAssessmentModel.find({ userId })
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1, _id: -1 })
     .lean()
     .exec();
+}
+
+export async function listRiskAssessmentPage(
+  page: number,
+  limit: number,
+  band?: RiskAssessment["band"],
+): Promise<{ assessments: RiskAssessment[]; total: number }> {
+  const filter = band ? { band } : {};
+  const [assessments, total] = await Promise.all([
+    RiskAssessmentModel.find(filter)
+      .sort({ createdAt: -1, _id: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean()
+      .exec(),
+    RiskAssessmentModel.countDocuments(filter).exec(),
+  ]);
+  return { assessments, total };
 }

@@ -9,6 +9,8 @@ export interface RiskAssessment {
   band: RiskBand;
   findings: RiskFinding[];
   ruleVersion: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const riskFindingSchema = new Schema<RiskFinding>(

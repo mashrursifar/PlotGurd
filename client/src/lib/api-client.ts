@@ -79,6 +79,39 @@ export interface ChainVerification {
   reason: string | null;
 }
 
+export type RiskBand = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type RiskSeverity = "medium" | "high" | "critical";
+
+export interface RiskFinding {
+  ruleId: "R1" | "R2" | "R3" | "R4" | "R5" | "R6";
+  name: string;
+  points: number;
+  severity: RiskSeverity;
+  explanation: string;
+  evidence: Record<string, unknown>;
+}
+
+export interface RiskReport {
+  score: number;
+  band: RiskBand;
+  findings: RiskFinding[];
+  ruleVersion: string;
+  generatedAt: string;
+}
+
+export interface RiskAssessmentItem extends RiskReport {
+  id: string;
+  parcelId: string;
+  dagNumber: string;
+}
+
+export interface PaginatedRiskAssessments {
+  items: RiskAssessmentItem[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
 export interface ApiErrorDetail {
   path: string;
   message: string;
@@ -300,6 +333,79 @@ function isChainVerification(value: unknown): value is ChainVerification {
   );
 }
 
+function isRiskBand(value: unknown): value is RiskBand {
+  return (
+    value === "LOW" ||
+    value === "MEDIUM" ||
+    value === "HIGH" ||
+    value === "CRITICAL"
+  );
+}
+
+function isRiskFinding(value: unknown): value is RiskFinding {
+  return (
+    isRecord(value) &&
+    (value.ruleId === "R1" ||
+      value.ruleId === "R2" ||
+      value.ruleId === "R3" ||
+      value.ruleId === "R4" ||
+      value.ruleId === "R5" ||
+      value.ruleId === "R6") &&
+    typeof value.name === "string" &&
+    typeof value.points === "number" &&
+    Number.isInteger(value.points) &&
+    value.points >= 0 &&
+    value.points <= 100 &&
+    (value.severity === "medium" ||
+      value.severity === "high" ||
+      value.severity === "critical") &&
+    typeof value.explanation === "string" &&
+    isRecord(value.evidence)
+  );
+}
+
+function isRiskReport(value: unknown): value is RiskReport {
+  return (
+    isRecord(value) &&
+    typeof value.score === "number" &&
+    Number.isInteger(value.score) &&
+    value.score >= 0 &&
+    value.score <= 100 &&
+    isRiskBand(value.band) &&
+    Array.isArray(value.findings) &&
+    value.findings.every(isRiskFinding) &&
+    typeof value.ruleVersion === "string" &&
+    typeof value.generatedAt === "string" &&
+    Number.isFinite(Date.parse(value.generatedAt))
+  );
+}
+
+function isRiskAssessmentItem(value: unknown): value is RiskAssessmentItem {
+  return (
+    isRiskReport(value) &&
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.parcelId === "string" &&
+    typeof value.dagNumber === "string"
+  );
+}
+
+function isPaginatedRiskAssessments(
+  value: unknown,
+): value is PaginatedRiskAssessments {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.items) &&
+    value.items.every(isRiskAssessmentItem) &&
+    typeof value.page === "number" &&
+    Number.isInteger(value.page) &&
+    typeof value.limit === "number" &&
+    Number.isInteger(value.limit) &&
+    typeof value.total === "number" &&
+    Number.isInteger(value.total)
+  );
+}
+
 export async function getHealth(): Promise<HealthData> {
   const data = await requestData("/api/health");
   if (!isHealthData(data)) {
@@ -344,6 +450,50 @@ export async function verifyParcelHistory(
   );
   if (!isChainVerification(data)) {
     throw new Error("The API returned an invalid history verification result.");
+  }
+  return data;
+}
+
+export async function runParcelRiskAssessment(id: string): Promise<RiskReport> {
+  const data = await requestData(`/api/parcels/${encodeURIComponent(id)}/risk`, {
+    method: "POST",
+  });
+  if (!isRiskReport(data)) {
+    throw new Error("The API returned an invalid risk assessment.");
+  }
+  return data;
+}
+
+export async function getLatestParcelRiskAssessment(
+  id: string,
+): Promise<RiskReport> {
+  const data = await requestData(
+    `/api/parcels/${encodeURIComponent(id)}/risk/latest`,
+  );
+  if (!isRiskReport(data)) {
+    throw new Error("The API returned an invalid risk assessment.");
+  }
+  return data;
+}
+
+export async function getMyRiskAssessments(): Promise<RiskAssessmentItem[]> {
+  const data = await requestData("/api/risk/mine");
+  if (!Array.isArray(data) || !data.every(isRiskAssessmentItem)) {
+    throw new Error("The API returned an invalid risk assessment list.");
+  }
+  return data;
+}
+
+export async function getAllRiskAssessments(
+  page = 1,
+  limit = 20,
+  band?: RiskBand,
+): Promise<PaginatedRiskAssessments> {
+  const query = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (band) query.set("band", band);
+  const data = await requestData(`/api/risk/all?${query.toString()}`);
+  if (!isPaginatedRiskAssessments(data)) {
+    throw new Error("The API returned an invalid risk assessment page.");
   }
   return data;
 }
