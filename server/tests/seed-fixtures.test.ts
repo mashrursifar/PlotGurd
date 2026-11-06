@@ -36,6 +36,25 @@ describe("seed fixtures", () => {
     expect(buildSeedFixtures(RISK_CONFIG.areaScale)).toEqual(fixtures);
   });
 
+  it("keeps adjacent parcels close while leaving narrow road corridors", () => {
+    const first = fixtures.parcels.find((parcel) => parcel.dagNumber === "1")!;
+    const second = fixtures.parcels.find((parcel) => parcel.dagNumber === "2")!;
+    const parcelBelow = fixtures.parcels.find((parcel) => parcel.dagNumber === "6")!;
+    const rightEdge = (parcel: (typeof fixtures.parcels)[number]): number =>
+      Math.max(...parcel.polygon.map(([x]) => x));
+    const leftEdge = (parcel: (typeof fixtures.parcels)[number]): number =>
+      Math.min(...parcel.polygon.map(([x]) => x));
+    const bottomEdge = (parcel: (typeof fixtures.parcels)[number]): number =>
+      Math.max(...parcel.polygon.map(([, y]) => y));
+    const topEdge = (parcel: (typeof fixtures.parcels)[number]): number =>
+      Math.min(...parcel.polygon.map(([, y]) => y));
+
+    expect(leftEdge(second) - rightEdge(first)).toBeGreaterThan(0);
+    expect(leftEdge(second) - rightEdge(first)).toBeLessThanOrEqual(30);
+    expect(topEdge(parcelBelow) - bottomEdge(first)).toBeGreaterThan(0);
+    expect(topEdge(parcelBelow) - bottomEdge(first)).toBeLessThanOrEqual(30);
+  });
+
   it("matches the expected pre-tamper risk findings and scores", () => {
     const expected = new Map<number, { findings: string[]; score: number; band: string }>([
       [3, { findings: [], score: 0, band: "LOW" }],

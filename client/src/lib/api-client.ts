@@ -21,6 +21,46 @@ export interface LoginInput {
   password: string;
 }
 
+export type ParcelLandType =
+  | "AGRICULTURAL"
+  | "RESIDENTIAL"
+  | "COMMERCIAL"
+  | "WETLAND"
+  | "GOVERNMENT";
+
+export type ParcelStatus = "ACTIVE" | "UNDER_REVIEW";
+
+export interface ParcelMapItem {
+  id: string;
+  dagNumber: string;
+  landType: ParcelLandType;
+  polygon: [number, number][];
+  status: ParcelStatus;
+  disputeFlag: boolean;
+  ownerName: string;
+}
+
+export interface ParcelOwnerSummary {
+  id: string;
+  name: string;
+}
+
+export interface ParcelDetail {
+  id: string;
+  mouza: string;
+  dagNumber: string;
+  khatianNumber: string;
+  landType: ParcelLandType;
+  recordedAreaDecimal: number;
+  computedAreaDecimal: number;
+  polygon: [number, number][];
+  currentOwner: ParcelOwnerSummary;
+  khatianOwner: ParcelOwnerSummary;
+  status: ParcelStatus;
+  disputeFlag: boolean;
+  disputeReason: string | null;
+}
+
 export interface ApiErrorDetail {
   path: string;
   message: string;
@@ -126,10 +166,94 @@ function isHealthData(value: unknown): value is HealthData {
   );
 }
 
+function isParcelMapItem(value: unknown): value is ParcelMapItem {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.dagNumber === "string" &&
+    (value.landType === "AGRICULTURAL" ||
+      value.landType === "RESIDENTIAL" ||
+      value.landType === "COMMERCIAL" ||
+      value.landType === "WETLAND" ||
+      value.landType === "GOVERNMENT") &&
+    Array.isArray(value.polygon) &&
+    value.polygon.every(
+      (point) =>
+        Array.isArray(point) &&
+        point.length === 2 &&
+        point.every(
+          (coordinate) =>
+            typeof coordinate === "number" && Number.isFinite(coordinate),
+        ),
+    ) &&
+    (value.status === "ACTIVE" || value.status === "UNDER_REVIEW") &&
+    typeof value.disputeFlag === "boolean" &&
+    typeof value.ownerName === "string"
+  );
+}
+
+function isParcelOwnerSummary(value: unknown): value is ParcelOwnerSummary {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.name === "string"
+  );
+}
+
+function isParcelDetail(value: unknown): value is ParcelDetail {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.mouza === "string" &&
+    typeof value.dagNumber === "string" &&
+    typeof value.khatianNumber === "string" &&
+    (value.landType === "AGRICULTURAL" ||
+      value.landType === "RESIDENTIAL" ||
+      value.landType === "COMMERCIAL" ||
+      value.landType === "WETLAND" ||
+      value.landType === "GOVERNMENT") &&
+    typeof value.recordedAreaDecimal === "number" &&
+    Number.isFinite(value.recordedAreaDecimal) &&
+    typeof value.computedAreaDecimal === "number" &&
+    Number.isFinite(value.computedAreaDecimal) &&
+    Array.isArray(value.polygon) &&
+    value.polygon.every(
+      (point) =>
+        Array.isArray(point) &&
+        point.length === 2 &&
+        point.every(
+          (coordinate) =>
+            typeof coordinate === "number" && Number.isFinite(coordinate),
+        ),
+    ) &&
+    isParcelOwnerSummary(value.currentOwner) &&
+    isParcelOwnerSummary(value.khatianOwner) &&
+    (value.status === "ACTIVE" || value.status === "UNDER_REVIEW") &&
+    typeof value.disputeFlag === "boolean" &&
+    (typeof value.disputeReason === "string" || value.disputeReason === null)
+  );
+}
+
 export async function getHealth(): Promise<HealthData> {
   const data = await requestData("/api/health");
   if (!isHealthData(data)) {
     throw new Error("The API returned an invalid health response.");
+  }
+  return data;
+}
+
+export async function getParcels(): Promise<ParcelMapItem[]> {
+  const data = await requestData("/api/parcels");
+  if (!Array.isArray(data) || !data.every(isParcelMapItem)) {
+    throw new Error("The API returned an invalid parcel list.");
+  }
+  return data;
+}
+
+export async function getParcelDetail(id: string): Promise<ParcelDetail> {
+  const data = await requestData(`/api/parcels/${encodeURIComponent(id)}`);
+  if (!isParcelDetail(data)) {
+    throw new Error("The API returned an invalid parcel detail.");
   }
   return data;
 }

@@ -6,7 +6,7 @@ All data is **fictional**. Names, IDs, and places do not refer to real people or
 
 Name: **Kalpanapur Mouza** (fictional). Map space 1000 by 700. A river runs diagonally across the lower right, a main road crosses horizontally near the middle, a feeder road runs vertically on the left. These are decorative shapes loaded with the map, not parcels.
 
-Parcels: **34 dags** numbered 1 to 34, arranged on a rough grid with irregular edges, avoiding overlaps. Each parcel polygon has 4 to 6 points. Recorded areas are consistent with polygon sizes using `AREA_SCALE`, except the planted case below.
+Parcels: **34 dags** numbered 1 to 34, arranged on a compact grid with irregular edges and narrow corridors for the road network, avoiding overlaps. Each parcel polygon has 4 to 6 points. Recorded areas are consistent with polygon sizes using `AREA_SCALE`, except the planted case below.
 
 Land type mix: about 14 agricultural, 10 residential, 4 commercial, 3 wetland near the river, 3 government.
 

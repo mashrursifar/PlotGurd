@@ -86,10 +86,10 @@ function makeOwners(): Owner[] {
 function makePolygon(dag: number): [number, number][] {
   const row = Math.floor((dag - 1) / 5);
   const column = (dag - 1) % 5;
-  const x = 16 + column * 196;
-  const y = 16 + row * 94;
-  const width = 166;
-  const height = 68;
+  const x = 10 + column * 190;
+  const y = 10 + row * 88;
+  const width = 180;
+  const height = 76;
   const offset = (multiplier: number, modulo: number): number =>
     ((dag * multiplier) % modulo) + 2;
 

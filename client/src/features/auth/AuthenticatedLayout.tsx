@@ -29,7 +29,7 @@ export function AuthenticatedLayout() {
 
   return (
     <>
-      <header className="bg-primary text-primary-foreground">
+      <header className="relative z-[1000] bg-primary text-primary-foreground">
         <nav className="mx-auto flex min-h-14 max-w-6xl items-center justify-between gap-4 px-6">
           <Link className="font-heading text-lg font-bold" to="/">
             <span className="inline-flex items-center gap-2">

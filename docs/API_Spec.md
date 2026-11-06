@@ -26,6 +26,14 @@ Errors: 409 email exists, 401 invalid credentials (generic message).
 | `PATCH /parcels/:id` | Authority | Update non-owner fields only (landType, area, khatianNumber, status, polygon). |
 | `PATCH /parcels/:id/dispute` | Authority | Body: `disputeFlag`, `disputeReason`. |
 
+`GET /parcels` returns map items with `id`, `dagNumber`, `landType`, `polygon`,
+`status`, `disputeFlag`, and `ownerName`. Search returns the parcel detail shape:
+`id`, `mouza`, `dagNumber`, `khatianNumber`, `landType`,
+`recordedAreaDecimal`, `computedAreaDecimal`, `polygon`, `currentOwner`
+(`id`, `name`), `khatianOwner` (`id`, `name`), `status`, `disputeFlag`, and
+`disputeReason`. `computedAreaDecimal` is the polygon area multiplied by
+`AREA_SCALE`, so it uses the same units as `recordedAreaDecimal`.
+
 `PATCH /parcels/:id` must reject `currentOwnerId` and `khatianOwnerId` (400).
 
 ## 3. Owners

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthorityPage } from "../features/auth/AuthorityPage";
 import { AuthenticatedLayout } from "../features/auth/AuthenticatedLayout";
@@ -6,7 +7,12 @@ import { PublicOnly } from "../features/auth/PublicOnly";
 import { RequireAuth } from "../features/auth/RequireAuth";
 import { RequireAuthority } from "../features/auth/RequireAuthority";
 import { SignupPage } from "../features/auth/SignupPage";
-import PlaceholderPage from "../pages/PlaceholderPage";
+
+const MapPage = lazy(() =>
+  import("../features/map/MapPage").then(({ MapPage: mapPage }) => ({
+    default: mapPage,
+  })),
+);
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +37,23 @@ export const router = createBrowserRouter([
       {
         element: <AuthenticatedLayout />,
         children: [
-          { path: "/map", element: <PlaceholderPage /> },
+          {
+            path: "/map",
+            element: (
+              <Suspense
+                fallback={
+                  <main
+                    aria-label="Loading parcel map"
+                    className="flex h-[calc(100dvh-3.5rem)] min-h-96 items-center justify-center bg-map-background"
+                  >
+                    <span className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+                  </main>
+                }
+              >
+                <MapPage />
+              </Suspense>
+            ),
+          },
           {
             path: "/authority",
             element: <RequireAuthority />,

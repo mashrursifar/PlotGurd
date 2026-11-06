@@ -7,3 +7,7 @@ export async function insertOwners(owners: readonly Owner[]): Promise<Owner[]> {
 export async function findOwnerById(id: string): Promise<Owner | null> {
   return OwnerModel.findById(id).lean().exec();
 }
+
+export async function findOwnersByIds(ids: readonly string[]): Promise<Owner[]> {
+  return OwnerModel.find({ _id: { $in: ids } }).lean().exec();
+}

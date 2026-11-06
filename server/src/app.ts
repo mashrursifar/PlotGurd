@@ -6,6 +6,7 @@ import { env } from "./config/env.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { authRouter } from "./routes/auth.js";
 import { healthRouter } from "./routes/health.js";
+import { parcelsRouter } from "./routes/parcels.js";
 import { failureResponse } from "./utils/response.js";
 
 export const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/api/health", healthRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/parcels", parcelsRouter);
 
 app.use((_request, response) => {
   response.status(404).json(failureResponse("NOT_FOUND", "Route not found."));

@@ -31,10 +31,21 @@
   --radius: 8px;
 
   --land-agricultural: #7bb661;
+  --land-agricultural-stroke: #4f8a3a;
   --land-residential: #f0a35e;
+  --land-residential-stroke: #c77a2e;
   --land-commercial: #5b8fd6;
+  --land-commercial-stroke: #356bb0;
   --land-wetland: #5dbfb4;
+  --land-wetland-stroke: #2e8f85;
   --land-government: #a7b0ba;
+  --land-government-stroke: #6f7a86;
+  --map-background: #edebe3;
+  --map-road: #ffffff;
+  --map-road-casing: #d5d2c8;
+  --map-river: #bfd9ec;
+  --map-river-edge: #9cc3de;
+  --map-dispute: #c0392b;
   --risk-low: #2e7d4f;
   --risk-medium: #d69e00;
   --risk-high: #e26a2c;
@@ -49,6 +60,47 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+}
+
+.leaflet-container {
+  font: inherit;
+}
+
+.parcel-label {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--foreground);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow:
+    -2px -2px 0 var(--card),
+    2px -2px 0 var(--card),
+    -2px 2px 0 var(--card),
+    2px 2px 0 var(--card);
+  white-space: nowrap;
+}
+
+.parcel-label::before {
+  display: none;
+}
+
+.parcel-dispute-badge {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  border-radius: 9999px;
+  background: var(--map-dispute);
+  color: var(--primary-foreground);
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  text-shadow: none;
 }
 
 button,

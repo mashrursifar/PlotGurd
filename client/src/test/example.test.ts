@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getCurrentUser,
   getHealth,
+  getParcelDetail,
+  getParcels,
   signupUser,
 } from "../lib/api-client";
 
@@ -28,6 +30,94 @@ describe("API client", () => {
       status: "ok",
       database: "disconnected",
     });
+  });
+
+  it("loads the map parcels from the authenticated parcel endpoint", async () => {
+    const parcels = [
+      {
+        id: "660000000000000000000014",
+        dagNumber: "14",
+        landType: "RESIDENTIAL",
+        polygon: [
+          [0, 0],
+          [20, 0],
+          [20, 10],
+        ],
+        status: "ACTIVE",
+        disputeFlag: false,
+        ownerName: "Fictional Owner",
+      },
+    ];
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ success: true, data: parcels }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getParcels()).resolves.toEqual(parcels);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/parcels",
+      expect.objectContaining({ credentials: "include" }),
+    );
+  });
+
+  it("rejects malformed parcel map responses", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ success: true, data: [{ dagNumber: "14" }] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    await expect(getParcels()).rejects.toThrow(
+      "The API returned an invalid parcel list.",
+    );
+  });
+
+  it("loads parcel detail with owner summaries", async () => {
+    const detail = {
+      id: "660000000000000000000014",
+      mouza: "Kalpanapur",
+      dagNumber: "14",
+      khatianNumber: "K-014",
+      landType: "RESIDENTIAL",
+      recordedAreaDecimal: 100,
+      computedAreaDecimal: 200,
+      polygon: [
+        [0, 0],
+        [20, 0],
+        [20, 10],
+      ],
+      currentOwner: {
+        id: "650000000000000000000114",
+        name: "Fictional Owner",
+      },
+      khatianOwner: {
+        id: "650000000000000000000115",
+        name: "Fictional Khatian Owner",
+      },
+      status: "ACTIVE",
+      disputeFlag: false,
+      disputeReason: null,
+    };
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ success: true, data: detail }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getParcelDetail(detail.id)).resolves.toEqual(detail);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/parcels/${detail.id}`,
+      expect.objectContaining({ credentials: "include" }),
+    );
   });
 
   it("sends signup credentials with cookies and no role field", async () => {

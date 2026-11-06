@@ -15,6 +15,10 @@ export async function findParcelByDag(
   return ParcelModel.findOne({ mouza, dagNumber }).lean().exec();
 }
 
+export async function findParcelByDagNumber(dagNumber: string): Promise<Parcel | null> {
+  return ParcelModel.findOne({ dagNumber }).lean().exec();
+}
+
 export async function listParcels(): Promise<Parcel[]> {
   return ParcelModel.find().sort({ dagNumber: 1 }).lean().exec();
 }
