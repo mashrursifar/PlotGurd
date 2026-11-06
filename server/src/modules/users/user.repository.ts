@@ -16,3 +16,12 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 export async function findUserById(id: string): Promise<User | null> {
   return UserModel.findById(id).lean().exec();
 }
+
+export async function findUserNamesByIds(
+  ids: readonly string[],
+): Promise<Array<Pick<User, "_id" | "name">>> {
+  return UserModel.find({ _id: { $in: ids } })
+    .select({ name: 1 })
+    .lean()
+    .exec();
+}
