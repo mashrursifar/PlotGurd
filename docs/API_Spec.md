@@ -52,6 +52,12 @@ Errors: 409 email exists, 401 invalid credentials (generic message).
 | `GET /parcels/:id/history/verify` | User | Returns verification result. |
 | `POST /parcels/:id/transactions` | Authority | Body: `type`, `fromOwnerId`, `toOwnerId`, `effectiveDate`, `note`. Rules per `Data_Model.md` entry semantics. |
 
+`GET /parcels/:id/history` returns an ordered array of entries with `seq`,
+`type`, `fromOwner`, `toOwner`, `effectiveDate`, `performedBy`, `source`,
+`note`, and `entryHash`. Owner and performer fields are names, not internal
+identifiers. `entryHash` is the full SHA-256 hex digest; clients may display a
+shortened form.
+
 Errors: 409 when `fromOwnerId` is not the current owner; 400 for a CORRECTION without a note; 409 on a sequence collision (client may retry).
 
 ## 5. Risk

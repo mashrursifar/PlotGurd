@@ -50,6 +50,11 @@
   --risk-medium: #d69e00;
   --risk-high: #e26a2c;
   --risk-critical: #b3261e;
+  --integrity-valid: #2e7d4f;
+  --integrity-valid-soft: #e6f4ea;
+  --integrity-valid-text: #1e5a37;
+  --integrity-invalid-soft: #fdecea;
+  --integrity-invalid-text: #8c1c16;
 }
 
 * {

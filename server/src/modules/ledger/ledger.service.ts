@@ -16,11 +16,16 @@ export interface LedgerHistoryEntry {
   performedBy: string;
   source: LedgerEntryRecord["source"];
   note: string | null;
+  entryHash: string;
 }
 
 function requireParcelId(parcel: Parcel): string {
   if (!parcel._id) {
-    throw new AppError("INTERNAL_ERROR", 500, "A parcel record has no identifier.");
+    throw new AppError(
+      "INTERNAL_ERROR",
+      500,
+      "A parcel record has no identifier.",
+    );
   }
   return parcel._id.toString();
 }
@@ -73,7 +78,9 @@ async function getOwnerNames(
 async function getPerformerNames(
   entries: readonly LedgerEntryRecord[],
 ): Promise<Map<string, string>> {
-  const performerIds = [...new Set(entries.map((entry) => entry.performedBy.toString()))];
+  const performerIds = [
+    ...new Set(entries.map((entry) => entry.performedBy.toString())),
+  ];
   const users = await findUserNamesByIds(performerIds);
 
   return new Map(
@@ -104,6 +111,7 @@ export async function getParcelHistory(
     performedBy: requireName(performerNames, entry.performedBy, "performer"),
     source: entry.source,
     note: entry.note,
+    entryHash: entry.entryHash,
   }));
 }
 

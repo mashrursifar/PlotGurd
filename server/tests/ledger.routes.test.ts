@@ -56,6 +56,7 @@ describe("parcel history API", () => {
         performedBy: "Fictional Authority",
         source: "LIVE",
         note: null,
+        entryHash: "a".repeat(64),
       },
     ]);
     ledgerService.verifyParcelHistory.mockResolvedValue({
@@ -94,6 +95,7 @@ describe("parcel history API", () => {
           performedBy: "Fictional Authority",
           source: "LIVE",
           note: null,
+          entryHash: "a".repeat(64),
         },
       ],
     });
@@ -122,19 +124,19 @@ describe("parcel history API", () => {
     );
   });
 
-  it.each(["/api/parcels/not-an-id/history", "/api/parcels/not-an-id/history/verify"])(
-    "rejects malformed parcel ids for %s",
-    async (path) => {
-      const response = await request(app)
-        .get(path)
-        .set("Cookie", sessionCookie());
+  it.each([
+    "/api/parcels/not-an-id/history",
+    "/api/parcels/not-an-id/history/verify",
+  ])("rejects malformed parcel ids for %s", async (path) => {
+    const response = await request(app)
+      .get(path)
+      .set("Cookie", sessionCookie());
 
-      expect(response.status).toBe(400);
-      expect(response.body.error.code).toBe("VALIDATION_ERROR");
-      expect(ledgerService.getParcelHistory).not.toHaveBeenCalled();
-      expect(ledgerService.verifyParcelHistory).not.toHaveBeenCalled();
-    },
-  );
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("VALIDATION_ERROR");
+    expect(ledgerService.getParcelHistory).not.toHaveBeenCalled();
+    expect(ledgerService.verifyParcelHistory).not.toHaveBeenCalled();
+  });
 
   it("returns not found when the service cannot find the parcel", async () => {
     ledgerService.getParcelHistory.mockRejectedValue(

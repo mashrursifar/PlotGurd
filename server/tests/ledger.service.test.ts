@@ -22,7 +22,10 @@ vi.mock("../src/modules/ledger/ledger-entry.repository.js", () => ({
   listLedgerEntries: repositories.listLedgerEntries,
 }));
 
-import { getParcelHistory, verifyParcelHistory } from "../src/modules/ledger/ledger.service.js";
+import {
+  getParcelHistory,
+  verifyParcelHistory,
+} from "../src/modules/ledger/ledger.service.js";
 import type { LedgerEntryRecord } from "../src/modules/ledger/ledger-entry.model.js";
 import type { Parcel } from "../src/modules/parcels/parcel.model.js";
 
@@ -36,7 +39,11 @@ const parcel: Parcel = {
   khatianNumber: "K-014",
   landType: "RESIDENTIAL",
   recordedAreaDecimal: 100,
-  polygon: [[0, 0], [20, 0], [20, 10]],
+  polygon: [
+    [0, 0],
+    [20, 0],
+    [20, 10],
+  ],
   currentOwnerId: ownerId,
   khatianOwnerId: ownerId,
   status: "ACTIVE",
@@ -86,10 +93,15 @@ describe("ledger service", () => {
         performedBy: "Fictional Authority",
         source: "LIVE",
         note: null,
+        entryHash: entry.entryHash,
       },
     ]);
-    expect(repositories.findOwnerNamesByIds).toHaveBeenCalledWith([ownerId.toString()]);
-    expect(repositories.findUserNamesByIds).toHaveBeenCalledWith([userId.toString()]);
+    expect(repositories.findOwnerNamesByIds).toHaveBeenCalledWith([
+      ownerId.toString(),
+    ]);
+    expect(repositories.findUserNamesByIds).toHaveBeenCalledWith([
+      userId.toString(),
+    ]);
   });
 
   it("reports a missing parcel for history and verification", async () => {
@@ -99,7 +111,9 @@ describe("ledger service", () => {
       code: "NOT_FOUND",
       status: 404,
     });
-    await expect(verifyParcelHistory(parcelId.toString())).rejects.toMatchObject({
+    await expect(
+      verifyParcelHistory(parcelId.toString()),
+    ).rejects.toMatchObject({
       code: "NOT_FOUND",
       status: 404,
     });
@@ -107,12 +121,16 @@ describe("ledger service", () => {
   });
 
   it("checks the chain against the parcel's current owner", async () => {
-    await expect(verifyParcelHistory(parcelId.toString())).resolves.toMatchObject({
+    await expect(
+      verifyParcelHistory(parcelId.toString()),
+    ).resolves.toMatchObject({
       valid: true,
       entriesChecked: 1,
       firstBrokenSeq: null,
     });
-    expect(repositories.listLedgerEntries).toHaveBeenCalledWith(parcelId.toString());
+    expect(repositories.listLedgerEntries).toHaveBeenCalledWith(
+      parcelId.toString(),
+    );
   });
 
   it("surfaces missing related records instead of returning incomplete history", async () => {

@@ -22,11 +22,7 @@ export interface LoginInput {
 }
 
 export type ParcelLandType =
-  | "AGRICULTURAL"
-  | "RESIDENTIAL"
-  | "COMMERCIAL"
-  | "WETLAND"
-  | "GOVERNMENT";
+  "AGRICULTURAL" | "RESIDENTIAL" | "COMMERCIAL" | "WETLAND" | "GOVERNMENT";
 
 export type ParcelStatus = "ACTIVE" | "UNDER_REVIEW";
 
@@ -59,6 +55,28 @@ export interface ParcelDetail {
   status: ParcelStatus;
   disputeFlag: boolean;
   disputeReason: string | null;
+}
+
+export type LedgerEntryType =
+  "REGISTRATION" | "SALE" | "INHERITANCE" | "GIFT" | "MUTATION" | "CORRECTION";
+
+export interface ParcelHistoryEntry {
+  seq: number;
+  type: LedgerEntryType;
+  fromOwner: string | null;
+  toOwner: string;
+  effectiveDate: string;
+  performedBy: string;
+  source: "LIVE" | "LEGACY_IMPORT";
+  note: string | null;
+  entryHash: string;
+}
+
+export interface ChainVerification {
+  valid: boolean;
+  entriesChecked: number;
+  firstBrokenSeq: number | null;
+  reason: string | null;
 }
 
 export interface ApiErrorDetail {
@@ -234,6 +252,54 @@ function isParcelDetail(value: unknown): value is ParcelDetail {
   );
 }
 
+function isLedgerEntryType(value: unknown): value is LedgerEntryType {
+  return (
+    value === "REGISTRATION" ||
+    value === "SALE" ||
+    value === "INHERITANCE" ||
+    value === "GIFT" ||
+    value === "MUTATION" ||
+    value === "CORRECTION"
+  );
+}
+
+function isParcelHistoryEntry(value: unknown): value is ParcelHistoryEntry {
+  return (
+    isRecord(value) &&
+    typeof value.seq === "number" &&
+    Number.isInteger(value.seq) &&
+    value.seq >= 1 &&
+    isLedgerEntryType(value.type) &&
+    (typeof value.fromOwner === "string" || value.fromOwner === null) &&
+    typeof value.toOwner === "string" &&
+    typeof value.effectiveDate === "string" &&
+    Number.isFinite(Date.parse(value.effectiveDate)) &&
+    typeof value.performedBy === "string" &&
+    (value.source === "LIVE" || value.source === "LEGACY_IMPORT") &&
+    (typeof value.note === "string" || value.note === null) &&
+    typeof value.entryHash === "string" &&
+    /^[a-f0-9]{64}$/.test(value.entryHash)
+  );
+}
+
+function isChainVerification(value: unknown): value is ChainVerification {
+  return (
+    isRecord(value) &&
+    typeof value.valid === "boolean" &&
+    typeof value.entriesChecked === "number" &&
+    Number.isInteger(value.entriesChecked) &&
+    value.entriesChecked >= 0 &&
+    ((typeof value.firstBrokenSeq === "number" &&
+      Number.isInteger(value.firstBrokenSeq) &&
+      value.firstBrokenSeq >= 1) ||
+      value.firstBrokenSeq === null) &&
+    (typeof value.reason === "string" || value.reason === null) &&
+    (value.valid
+      ? value.firstBrokenSeq === null && value.reason === null
+      : value.firstBrokenSeq !== null && value.reason !== null)
+  );
+}
+
 export async function getHealth(): Promise<HealthData> {
   const data = await requestData("/api/health");
   if (!isHealthData(data)) {
@@ -254,6 +320,30 @@ export async function getParcelDetail(id: string): Promise<ParcelDetail> {
   const data = await requestData(`/api/parcels/${encodeURIComponent(id)}`);
   if (!isParcelDetail(data)) {
     throw new Error("The API returned an invalid parcel detail.");
+  }
+  return data;
+}
+
+export async function getParcelHistory(
+  id: string,
+): Promise<ParcelHistoryEntry[]> {
+  const data = await requestData(
+    `/api/parcels/${encodeURIComponent(id)}/history`,
+  );
+  if (!Array.isArray(data) || !data.every(isParcelHistoryEntry)) {
+    throw new Error("The API returned an invalid parcel history.");
+  }
+  return data;
+}
+
+export async function verifyParcelHistory(
+  id: string,
+): Promise<ChainVerification> {
+  const data = await requestData(
+    `/api/parcels/${encodeURIComponent(id)}/history/verify`,
+  );
+  if (!isChainVerification(data)) {
+    throw new Error("The API returned an invalid history verification result.");
   }
   return data;
 }
