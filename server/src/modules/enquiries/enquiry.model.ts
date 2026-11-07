@@ -11,6 +11,8 @@ export interface Enquiry {
   reply: string | null;
   repliedBy: Types.ObjectId | null;
   repliedAt: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const enquirySchema = new Schema<Enquiry>(

@@ -20,6 +20,13 @@ const MyAssessmentsPage = lazy(() =>
     }),
   ),
 );
+const MyEnquiriesPage = lazy(() =>
+  import("../features/enquiries/MyEnquiriesPage").then(
+    ({ MyEnquiriesPage: myEnquiriesPage }) => ({
+      default: myEnquiriesPage,
+    }),
+  ),
+);
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +82,23 @@ export const router = createBrowserRouter([
                 }
               >
                 <MyAssessmentsPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/enquiries/mine",
+            element: (
+              <Suspense
+                fallback={
+                  <main
+                    aria-label="Loading enquiries"
+                    className="mx-auto min-h-[calc(100dvh-3.5rem)] max-w-5xl p-6"
+                  >
+                    <span className="h-8 w-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+                  </main>
+                }
+              >
+                <MyEnquiriesPage />
               </Suspense>
             ),
           },

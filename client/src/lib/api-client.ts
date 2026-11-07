@@ -112,6 +112,20 @@ export interface PaginatedRiskAssessments {
   total: number;
 }
 
+export type EnquiryStatus = "OPEN" | "ANSWERED" | "CLOSED";
+
+export interface EnquiryItem {
+  id: string;
+  parcelId: string;
+  userId: string;
+  question: string;
+  status: EnquiryStatus;
+  reply: string | null;
+  repliedBy: string | null;
+  repliedAt: string | null;
+  createdAt: string;
+}
+
 export interface ApiErrorDetail {
   path: string;
   message: string;
@@ -406,6 +420,25 @@ function isPaginatedRiskAssessments(
   );
 }
 
+function isEnquiryStatus(value: unknown): value is EnquiryStatus {
+  return value === "OPEN" || value === "ANSWERED" || value === "CLOSED";
+}
+
+function isEnquiryItem(value: unknown): value is EnquiryItem {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.parcelId === "string" &&
+    typeof value.userId === "string" &&
+    typeof value.question === "string" &&
+    isEnquiryStatus(value.status) &&
+    (typeof value.reply === "string" || value.reply === null) &&
+    (typeof value.repliedBy === "string" || value.repliedBy === null) &&
+    (typeof value.repliedAt === "string" || value.repliedAt === null) &&
+    typeof value.createdAt === "string"
+  );
+}
+
 export async function getHealth(): Promise<HealthData> {
   const data = await requestData("/api/health");
   if (!isHealthData(data)) {
@@ -494,6 +527,28 @@ export async function getAllRiskAssessments(
   const data = await requestData(`/api/risk/all?${query.toString()}`);
   if (!isPaginatedRiskAssessments(data)) {
     throw new Error("The API returned an invalid risk assessment page.");
+  }
+  return data;
+}
+
+export async function submitEnquiry(
+  parcelId: string,
+  question: string,
+): Promise<EnquiryItem> {
+  const data = await requestData("/api/enquiries", {
+    method: "POST",
+    body: JSON.stringify({ parcelId, question }),
+  });
+  if (!isEnquiryItem(data)) {
+    throw new Error("The API returned an invalid enquiry response.");
+  }
+  return data;
+}
+
+export async function getMyEnquiries(): Promise<EnquiryItem[]> {
+  const data = await requestData("/api/enquiries/mine");
+  if (!Array.isArray(data) || !data.every(isEnquiryItem)) {
+    throw new Error("The API returned an invalid enquiry list.");
   }
   return data;
 }

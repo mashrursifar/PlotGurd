@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { getParcelDetail, type ParcelMapItem } from "../../lib/api-client";
 import { HistoryTab } from "./HistoryTab";
 import { RiskTab } from "../risk/RiskTab";
+import { EnquiryTab } from "../enquiries/EnquiryTab";
 
 interface ParcelPanelProps {
   parcel: Pick<ParcelMapItem, "id" | "dagNumber">;
@@ -31,7 +32,7 @@ function formatArea(value: number): string {
 }
 
 export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
-  const [activeTab, setActiveTab] = useState<"details" | "history" | "risk">(
+  const [activeTab, setActiveTab] = useState<"details" | "history" | "risk" | "enquire">(
     "details",
   );
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -45,7 +46,7 @@ export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
   }, [parcel.id]);
 
   function handleTabKeyDown(event: React.KeyboardEvent<HTMLDivElement>): void {
-    const tabs = ["details", "history", "risk"] as const;
+    const tabs = ["details", "history", "risk", "enquire"] as const;
     const currentIndex = tabs.indexOf(activeTab);
     let nextIndex: number | null = null;
 
@@ -104,7 +105,7 @@ export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
         onKeyDown={handleTabKeyDown}
         role="tablist"
       >
-        {(["details", "history", "risk"] as const).map((tab, index) => (
+        {(["details", "history", "risk", "enquire"] as const).map((tab, index) => (
           <button
             aria-controls={`parcel-${tab}-panel`}
             aria-selected={activeTab === tab}
@@ -266,6 +267,16 @@ export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
             tabIndex={0}
           >
             <RiskTab parcelId={parcel.id} />
+          </div>
+        )}
+        {activeTab === "enquire" && (
+          <div
+            aria-labelledby="parcel-enquire-tab"
+            id="parcel-enquire-panel"
+            role="tabpanel"
+            tabIndex={0}
+          >
+            <EnquiryTab parcelId={parcel.id} />
           </div>
         )}
       </div>
