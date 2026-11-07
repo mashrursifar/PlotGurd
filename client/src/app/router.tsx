@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { AuthorityPage } from "../features/auth/AuthorityPage";
 import { AuthenticatedLayout } from "../features/auth/AuthenticatedLayout";
 import { LoginPage } from "../features/auth/LoginPage";
 import { PublicOnly } from "../features/auth/PublicOnly";
@@ -24,6 +23,18 @@ const MyEnquiriesPage = lazy(() =>
   import("../features/enquiries/MyEnquiriesPage").then(
     ({ MyEnquiriesPage: myEnquiriesPage }) => ({
       default: myEnquiriesPage,
+    }),
+  ),
+);
+const AuthorityPage = lazy(() =>
+  import("../features/authority/AuthorityPage").then(
+    ({ AuthorityPage: authorityPage }) => ({ default: authorityPage }),
+  ),
+);
+const AuthorityAuditPage = lazy(() =>
+  import("../features/authority/AuthorityAuditPage").then(
+    ({ AuthorityAuditPage: authorityAuditPage }) => ({
+      default: authorityAuditPage,
     }),
   ),
 );
@@ -105,7 +116,24 @@ export const router = createBrowserRouter([
           {
             path: "/authority",
             element: <RequireAuthority />,
-            children: [{ index: true, element: <AuthorityPage /> }],
+            children: [
+              {
+                index: true,
+                element: (
+                  <Suspense fallback={<p className="p-6 text-muted-foreground">Loading authority tools…</p>}>
+                    <AuthorityPage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: "audit",
+                element: (
+                  <Suspense fallback={<p className="p-6 text-muted-foreground">Loading audit log…</p>}>
+                    <AuthorityAuditPage />
+                  </Suspense>
+                ),
+              },
+            ],
           },
         ],
       },

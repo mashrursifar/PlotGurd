@@ -6,8 +6,31 @@ import { parcelDagSearchSchema, parcelIdSchema } from "./parcel.schema.js";
 import {
   getParcelDetail,
   getParcelList,
+  createRegisteredParcel,
+  editParcel,
   searchParcelByDag,
+  setParcelDispute,
 } from "./parcel.service.js";
+import {
+  createParcelSchema,
+  disputeFlagSchema,
+  updateParcelSchema,
+} from "./parcel.schema.js";
+
+function requireSessionUser(request: Parameters<RequestHandler>[0]): string {
+  if (!request.user) {
+    throw new AppError("UNAUTHENTICATED", 401, "Authentication is required.");
+  }
+  return request.user.id;
+}
+
+function getParcelId(request: Parameters<RequestHandler>[0]): string {
+  const parsedId = parcelIdSchema.safeParse(request.params.id);
+  if (!parsedId.success) {
+    throw validationError(parsedId.error);
+  }
+  return parsedId.data;
+}
 
 function validationError(error: ZodError): AppError {
   return new AppError(
@@ -25,6 +48,18 @@ export const listParcelsController: RequestHandler = async (_request, response) 
   response.status(200).json(successResponse(await getParcelList()));
 };
 
+export const createParcelController: RequestHandler = async (
+  request,
+  response,
+) => {
+  const input = createParcelSchema.parse(request.body);
+  const parcel = await createRegisteredParcel(
+    input,
+    requireSessionUser(request),
+  );
+  response.status(201).json(successResponse(parcel));
+};
+
 export const searchParcelController: RequestHandler = async (request, response) => {
   const parsedQuery = parcelDagSearchSchema.safeParse(request.query);
   if (!parsedQuery.success) {
@@ -36,11 +71,34 @@ export const searchParcelController: RequestHandler = async (request, response) 
 };
 
 export const getParcelController: RequestHandler = async (request, response) => {
-  const parsedId = parcelIdSchema.safeParse(request.params.id);
-  if (!parsedId.success) {
-    throw validationError(parsedId.error);
-  }
   response
     .status(200)
-    .json(successResponse(await getParcelDetail(parsedId.data)));
+    .json(successResponse(await getParcelDetail(getParcelId(request))));
+};
+
+export const updateParcelController: RequestHandler = async (
+  request,
+  response,
+) => {
+  const input = updateParcelSchema.parse(request.body);
+  const parcel = await editParcel(
+    getParcelId(request),
+    requireSessionUser(request),
+    input,
+  );
+  response.status(200).json(successResponse(parcel));
+};
+
+export const setParcelDisputeController: RequestHandler = async (
+  request,
+  response,
+) => {
+  const input = disputeFlagSchema.parse(request.body);
+  const parcel = await setParcelDispute(
+    getParcelId(request),
+    requireSessionUser(request),
+    input.disputeFlag,
+    input.disputeReason,
+  );
+  response.status(200).json(successResponse(parcel));
 };

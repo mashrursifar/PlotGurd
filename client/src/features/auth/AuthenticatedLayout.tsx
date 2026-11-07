@@ -73,6 +73,16 @@ export function AuthenticatedLayout() {
               </NavLink>
             )}
             {auth.isAuthority && (
+              <NavLink
+                className={({ isActive }) =>
+                  `border-b-2 py-4 ${isActive ? "border-accent" : "border-transparent"}`
+                }
+                to="/authority/audit"
+              >
+                Audit log
+              </NavLink>
+            )}
+            {auth.isAuthority && (
               <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
                 Authority
               </span>

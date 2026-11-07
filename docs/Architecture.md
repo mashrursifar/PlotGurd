@@ -71,7 +71,11 @@ A three-tier web app: React SPA, Express JSON API, MongoDB.
 
 **Open a plot**: map click selects parcel id, client fetches parcel detail, panel shows tabs. History and Risk tabs fetch lazily.
 
-**Record a transfer (authority)**: controller validates body, service loads parcel, checks from-owner rule, builds ledger entry with prev-hash, computes entry hash, inserts entry, updates parcel owner and `updatedAt`, writes audit log. Failures leave no partial state (insert entry first with unique seq; update parcel second; on parcel update failure mark error and surface it; keep operations ordered and idempotent).
+**Record a transfer (authority)**: controller validates body, service loads parcel, verifies its current history, checks the from-owner rule, builds and hashes the next ledger entry, updates parcel ownership and writes the audit log in one MongoDB transaction. A failure leaves no partial change.
+
+Authority operations that update multiple collections use MongoDB transactions.
+The deployment must support transactions (a replica set; a single-node replica
+set is sufficient for local development).
 
 **Verify integrity**: ledger service loads entries ordered by seq, recomputes each hash, checks `prevHash` linkage, checks final to-owner equals parcel current owner, returns result.
 

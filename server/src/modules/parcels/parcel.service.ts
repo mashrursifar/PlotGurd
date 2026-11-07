@@ -1,4 +1,8 @@
 import { env } from "../../config/env.js";
+import { withDatabaseTransaction } from "../../config/database.js";
+import { Types } from "mongoose";
+import { recordAuditLog } from "../audit/audit-log.service.js";
+import { registerParcel, type RegisterParcelInput } from "../ledger/ledger.service.js";
 import { findOwnersByIds } from "../owners/owner.repository.js";
 import type { Owner } from "../owners/owner.model.js";
 import type { Parcel } from "./parcel.model.js";
@@ -6,6 +10,9 @@ import {
   findParcelByDagNumber,
   findParcelById,
   listParcels,
+  updateParcelDispute,
+  updateParcelFields,
+  type ParcelEditableFields,
 } from "./parcel.repository.js";
 import { polygonArea } from "../../utils/geometry.js";
 import { AppError } from "../../utils/app-error.js";
@@ -98,6 +105,14 @@ export async function getParcelList(): Promise<ParcelMapItem[]> {
   }));
 }
 
+export async function createRegisteredParcel(
+  input: RegisterParcelInput,
+  authorityId: string,
+): Promise<ParcelDetail> {
+  const parcel = await registerParcel(authorityId, input);
+  return makeParcelDetail(parcel, await loadOwnerMap([parcel]));
+}
+
 export async function searchParcelByDag(dagNumber: string): Promise<ParcelDetail> {
   const parcel = await findParcelByDagNumber(dagNumber);
   if (!parcel) {
@@ -112,6 +127,66 @@ export async function getParcelDetail(id: string): Promise<ParcelDetail> {
     throw new AppError("NOT_FOUND", 404, "Parcel not found.");
   }
   return makeParcelDetail(parcel, await loadOwnerMap([parcel]));
+}
+
+export async function editParcel(
+  id: string,
+  authorityId: string,
+  updates: Partial<ParcelEditableFields>,
+): Promise<ParcelDetail> {
+  const updated = await withDatabaseTransaction(async (session) => {
+    const parcel = await updateParcelFields(id, updates, session);
+    if (!parcel) {
+      throw new AppError("NOT_FOUND", 404, "Parcel not found.");
+    }
+    await recordAuditLog(
+      {
+        actorId: new Types.ObjectId(authorityId),
+        action: "PARCEL_UPDATE",
+        targetType: "parcel",
+        targetId: new Types.ObjectId(id),
+        summary: `Updated parcel dag ${parcel.dagNumber}.`,
+        meta: { fields: Object.keys(updates) },
+      },
+      session,
+    );
+    return parcel;
+  });
+  return makeParcelDetail(updated, await loadOwnerMap([updated]));
+}
+
+export async function setParcelDispute(
+  id: string,
+  authorityId: string,
+  disputeFlag: boolean,
+  disputeReason: string | null,
+): Promise<ParcelDetail> {
+  const updated = await withDatabaseTransaction(async (session) => {
+    const parcel = await updateParcelDispute(
+      id,
+      disputeFlag,
+      disputeReason,
+      session,
+    );
+    if (!parcel) {
+      throw new AppError("NOT_FOUND", 404, "Parcel not found.");
+    }
+    await recordAuditLog(
+      {
+        actorId: new Types.ObjectId(authorityId),
+        action: disputeFlag ? "DISPUTE_SET" : "DISPUTE_CLEARED",
+        targetType: "parcel",
+        targetId: new Types.ObjectId(id),
+        summary: disputeFlag
+          ? `Set a dispute flag on parcel dag ${parcel.dagNumber}.`
+          : `Cleared the dispute flag on parcel dag ${parcel.dagNumber}.`,
+        meta: { disputeReason },
+      },
+      session,
+    );
+    return parcel;
+  });
+  return makeParcelDetail(updated, await loadOwnerMap([updated]));
 }
 
 function makeParcelDetail(

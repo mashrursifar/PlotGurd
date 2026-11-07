@@ -22,7 +22,7 @@ Errors: 409 email exists, 401 invalid credentials (generic message).
 | `GET /parcels` | User | Light list for the map: id, dagNumber, landType, polygon, status, disputeFlag, ownerName. |
 | `GET /parcels/search?dag=14` | User | Returns matching parcel or 404. |
 | `GET /parcels/:id` | User | Full detail: owner, khatian owner, area, computed polygon area, flags. |
-| `POST /parcels` | Authority | Create parcel with REGISTRATION entry. |
+| `POST /parcels` | Authority | Body: `mouza`, `dagNumber`, `khatianNumber`, `landType`, `recordedAreaDecimal`, `polygon`, `currentOwnerId`. Creates a parcel and its initial REGISTRATION entry; the initial khatian owner is the same owner. |
 | `PATCH /parcels/:id` | Authority | Update non-owner fields only (landType, area, khatianNumber, status, polygon). |
 | `PATCH /parcels/:id/dispute` | Authority | Body: `disputeFlag`, `disputeReason`. |
 
@@ -35,13 +35,16 @@ Errors: 409 email exists, 401 invalid credentials (generic message).
 `AREA_SCALE`, so it uses the same units as `recordedAreaDecimal`.
 
 `PATCH /parcels/:id` must reject `currentOwnerId` and `khatianOwnerId` (400).
+`POST /parcels` accepts `currentOwnerId` only as the initial owner for its
+REGISTRATION entry; it does not permit direct ownership changes to existing
+parcels.
 
 ## 3. Owners
 
 | Method and path | Access | Notes |
 |---|---|---|
-| `GET /owners` | Authority | List and filter by name. |
-| `POST /owners` | Authority | Create owner. |
+| `GET /owners` | Authority | List and filter by `name`. |
+| `POST /owners` | Authority | Body: `name`, `nationalId`, `address`. |
 | `GET /owners/:id` | User | Public summary: name only plus parcel count. |
 
 ## 4. History (ledger)
@@ -85,11 +88,14 @@ Report shape: `{ score, band, findings: [{ ruleId, name, points, severity, expla
 
 | Method and path | Access | Notes |
 |---|---|---|
-| `GET /audit` | Authority | Paginated, newest first, filter by action or target. |
+| `GET /audit` | Authority | Paginated, newest first; accepts `page`, `limit`, `action`, and `target` filters. |
 
 ## 8. Pagination and filtering
 
 List endpoints that can grow (`/enquiries`, `/audit`, `/risk/all`) accept `page` and `limit` (default 1 and 20, max 100) and return `{ items, page, limit, total }`.
+
+Audit items contain `id`, `actorId`, `action`, `targetType`, `targetId`,
+`summary`, `meta`, and `createdAt`.
 
 ## 9. Standard error codes
 

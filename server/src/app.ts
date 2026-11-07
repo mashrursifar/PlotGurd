@@ -9,6 +9,8 @@ import { healthRouter } from "./routes/health.js";
 import { parcelsRouter } from "./routes/parcels.js";
 import { riskRouter } from "./routes/risk.js";
 import { enquiriesRouter } from "./routes/enquiries.js";
+import { ownersRouter } from "./routes/owners.js";
+import { auditRouter } from "./routes/audit.js";
 import { failureResponse } from "./utils/response.js";
 
 export const app = express();
@@ -22,6 +24,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/parcels", parcelsRouter);
 app.use("/api/risk", riskRouter);
 app.use("/api/enquiries", enquiriesRouter);
+app.use("/api/owners", ownersRouter);
+app.use("/api/audit", auditRouter);
 
 app.use((_request, response) => {
   response.status(404).json(failureResponse("NOT_FOUND", "Route not found."));

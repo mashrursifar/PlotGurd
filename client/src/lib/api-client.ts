@@ -126,6 +126,68 @@ export interface EnquiryItem {
   createdAt: string;
 }
 
+export interface OwnerItem {
+  id: string;
+  name: string;
+  nationalId: string;
+  address: string;
+}
+
+export interface CreateOwnerInput {
+  name: string;
+  nationalId: string;
+  address: string;
+}
+
+export interface CreateParcelInput {
+  mouza: string;
+  dagNumber: string;
+  khatianNumber: string;
+  landType: ParcelLandType;
+  recordedAreaDecimal: number;
+  polygon: [number, number][];
+  currentOwnerId: string;
+}
+
+export type ParcelUpdateInput = Partial<
+  Pick<
+    ParcelDetail,
+    "khatianNumber" | "landType" | "recordedAreaDecimal" | "polygon" | "status"
+  >
+>;
+
+export type TransactionType = Exclude<LedgerEntryType, "REGISTRATION">;
+
+export interface ParcelTransactionInput {
+  type: TransactionType;
+  fromOwnerId: string | null;
+  toOwnerId: string;
+  effectiveDate: string;
+  note?: string | null;
+}
+
+export interface RecordedTransaction extends ParcelHistoryEntry {
+  source: "LIVE";
+}
+
+export interface AuditLogItem {
+  id: string;
+  actorId: string;
+  action: string;
+  targetType: string;
+  targetId: string;
+  summary: string;
+  meta: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface PaginatedAuditLogs {
+  items: AuditLogItem[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
 export interface ApiErrorDetail {
   path: string;
   message: string;
@@ -439,6 +501,49 @@ function isEnquiryItem(value: unknown): value is EnquiryItem {
   );
 }
 
+function isOwnerItem(value: unknown): value is OwnerItem {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.name === "string" &&
+    typeof value.nationalId === "string" &&
+    typeof value.address === "string"
+  );
+}
+
+function isRecordedTransaction(value: unknown): value is RecordedTransaction {
+  return isParcelHistoryEntry(value) && value.source === "LIVE";
+}
+
+function isAuditLogItem(value: unknown): value is AuditLogItem {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    typeof value.actorId === "string" &&
+    typeof value.action === "string" &&
+    typeof value.targetType === "string" &&
+    typeof value.targetId === "string" &&
+    typeof value.summary === "string" &&
+    (value.meta === null || isRecord(value.meta)) &&
+    typeof value.createdAt === "string" &&
+    Number.isFinite(Date.parse(value.createdAt))
+  );
+}
+
+function isPaginatedAuditLogs(value: unknown): value is PaginatedAuditLogs {
+  return (
+    isRecord(value) &&
+    Array.isArray(value.items) &&
+    value.items.every(isAuditLogItem) &&
+    typeof value.page === "number" &&
+    Number.isInteger(value.page) &&
+    typeof value.limit === "number" &&
+    Number.isInteger(value.limit) &&
+    typeof value.total === "number" &&
+    Number.isInteger(value.total)
+  );
+}
+
 export async function getHealth(): Promise<HealthData> {
   const data = await requestData("/api/health");
   if (!isHealthData(data)) {
@@ -549,6 +654,103 @@ export async function getMyEnquiries(): Promise<EnquiryItem[]> {
   const data = await requestData("/api/enquiries/mine");
   if (!Array.isArray(data) || !data.every(isEnquiryItem)) {
     throw new Error("The API returned an invalid enquiry list.");
+  }
+  return data;
+}
+
+export async function getOwners(name?: string): Promise<OwnerItem[]> {
+  const query = new URLSearchParams();
+  if (name) query.set("name", name);
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+  const data = await requestData(`/api/owners${suffix}`);
+  if (!Array.isArray(data) || !data.every(isOwnerItem)) {
+    throw new Error("The API returned an invalid owner list.");
+  }
+  return data;
+}
+
+export async function createOwner(input: CreateOwnerInput): Promise<OwnerItem> {
+  const data = await requestData("/api/owners", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  if (!isOwnerItem(data)) {
+    throw new Error("The API returned an invalid owner response.");
+  }
+  return data;
+}
+
+export async function createParcel(input: CreateParcelInput): Promise<ParcelDetail> {
+  const data = await requestData("/api/parcels", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  if (!isParcelDetail(data)) {
+    throw new Error("The API returned an invalid parcel detail.");
+  }
+  return data;
+}
+
+export async function updateParcel(
+  id: string,
+  updates: ParcelUpdateInput,
+): Promise<ParcelDetail> {
+  const data = await requestData(`/api/parcels/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(updates),
+  });
+  if (!isParcelDetail(data)) {
+    throw new Error("The API returned an invalid parcel detail.");
+  }
+  return data;
+}
+
+export async function setParcelDispute(
+  id: string,
+  disputeFlag: boolean,
+  disputeReason: string | null,
+): Promise<ParcelDetail> {
+  const data = await requestData(
+    `/api/parcels/${encodeURIComponent(id)}/dispute`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ disputeFlag, disputeReason }),
+    },
+  );
+  if (!isParcelDetail(data)) {
+    throw new Error("The API returned an invalid parcel detail.");
+  }
+  return data;
+}
+
+export async function recordParcelTransaction(
+  id: string,
+  input: ParcelTransactionInput,
+): Promise<RecordedTransaction> {
+  const data = await requestData(
+    `/api/parcels/${encodeURIComponent(id)}/transactions`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+  if (!isRecordedTransaction(data)) {
+    throw new Error("The API returned an invalid transaction response.");
+  }
+  return data;
+}
+
+export async function getAuditLogs(
+  page = 1,
+  limit = 20,
+  filters: { action?: string; target?: string } = {},
+): Promise<PaginatedAuditLogs> {
+  const query = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (filters.action) query.set("action", filters.action);
+  if (filters.target) query.set("target", filters.target);
+  const data = await requestData(`/api/audit?${query.toString()}`);
+  if (!isPaginatedAuditLogs(data)) {
+    throw new Error("The API returned an invalid audit log page.");
   }
   return data;
 }

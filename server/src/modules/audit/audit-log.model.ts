@@ -8,6 +8,7 @@ export interface AuditLog {
   targetId: Types.ObjectId;
   summary: string;
   meta?: Record<string, unknown>;
+  createdAt?: Date;
 }
 
 const auditLogSchema = new Schema<AuditLog>(
