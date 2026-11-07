@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "test:e2e": "node -e \"console.error('Playwright tests are introduced in Phase 9.'); process.exit(1)\"",
+    "test:e2e": "playwright test",
     "seed": "npm run seed --workspace server",
     "seed:check": "npm run seed:check --workspace server",
     "demo:tamper": "npm run demo:tamper --workspace server",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@playwright/test": "^1.65.0",
     "@types/node": "^22.15.30",
     "concurrently": "^9.2.0",
     "eslint": "^9.29.0",

@@ -47,16 +47,19 @@ export function SearchBox({
   }
 
   return (
-    <div className="absolute left-4 top-4 z-[500] w-[min(22rem,calc(100%-2rem))]">
+    <div className="absolute left-3 top-3 z-[500] w-[min(22rem,calc(100%-1.5rem))] sm:left-4 sm:top-4 sm:w-[min(22rem,calc(100%-2rem))]">
       <form
-        className="flex h-11 items-center gap-2 rounded-full border border-border bg-card px-4 shadow-control"
+        aria-label="Search parcels by dag number"
+        className="flex h-11 items-center gap-2 rounded-full border border-border bg-card px-3 shadow-control sm:px-4"
         onSubmit={submitSearch}
         role="search"
       >
         <Search aria-hidden="true" className="shrink-0 text-muted-foreground" size={18} />
         <input
+          aria-describedby={error ? "dag-search-error" : undefined}
+          aria-invalid={Boolean(error)}
           aria-label="Search dag number"
-          className="min-w-0 flex-1 border-0 bg-transparent text-sm outline-none"
+          className="min-w-0 flex-1 border-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           onChange={(event) => {
             setQuery(event.target.value);
             setError("");
@@ -80,6 +83,7 @@ export function SearchBox({
         <p
           aria-live="polite"
           className="mt-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-destructive shadow-control"
+          id="dag-search-error"
           role="alert"
         >
           {error}

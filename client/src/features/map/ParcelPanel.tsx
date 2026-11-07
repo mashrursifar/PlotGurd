@@ -67,7 +67,7 @@ export function ParcelPanel({ parcel, onClose }: ParcelPanelProps) {
   return (
     <aside
       aria-label={`Details for dag ${parcel.dagNumber}`}
-      className="absolute inset-x-0 bottom-0 z-[600] flex max-h-[75%] flex-col overflow-hidden rounded-t-xl border border-border bg-card shadow-panel md:inset-y-4 md:left-auto md:right-4 md:w-[360px] md:rounded-lg xl:inset-y-0 xl:right-0 xl:w-[400px] xl:rounded-none"
+      className="absolute inset-x-0 bottom-0 z-[600] flex max-h-[75vh] flex-col overflow-hidden rounded-t-xl border border-border bg-card shadow-panel sm:inset-x-3 sm:bottom-3 sm:max-h-[78vh] md:inset-y-4 md:left-auto md:right-4 md:w-[360px] md:rounded-lg xl:inset-y-0 xl:right-0 xl:w-[400px] xl:rounded-none"
     >
       <header className="flex items-start justify-between gap-4 border-b border-border p-4">
         <div>

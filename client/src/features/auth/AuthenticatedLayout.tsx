@@ -30,17 +30,28 @@ export function AuthenticatedLayout() {
   return (
     <>
       <header className="relative z-[1000] bg-primary text-primary-foreground">
-        <nav className="mx-auto flex min-h-14 max-w-6xl items-center justify-between gap-4 px-6">
-          <Link className="font-heading text-lg font-bold" to="/">
-            <span className="inline-flex items-center gap-2">
-              <ShieldCheck aria-hidden="true" size={20} strokeWidth={1.75} />
-              PlotGuard
-            </span>
-          </Link>
-          <div className="flex items-center gap-4">
+        <nav
+          aria-label="Main navigation"
+          className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:items-center md:justify-between"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <Link className="font-heading text-lg font-bold" to="/">
+              <span className="inline-flex items-center gap-2">
+                <ShieldCheck aria-hidden="true" size={20} strokeWidth={1.75} />
+                PlotGuard
+              </span>
+            </Link>
+            {auth.isAuthority && (
+              <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-accent-foreground md:hidden">
+                Authority
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:justify-end">
             <NavLink
               className={({ isActive }) =>
-                `border-b-2 py-4 ${isActive ? "border-accent" : "border-transparent"}`
+                `border-b-2 px-2 py-2 text-sm font-medium transition-colors ${isActive ? "border-accent text-primary-foreground" : "border-transparent text-primary-foreground/80 hover:text-primary-foreground"}`
               }
               to="/map"
             >
@@ -48,7 +59,7 @@ export function AuthenticatedLayout() {
             </NavLink>
             <NavLink
               className={({ isActive }) =>
-                `border-b-2 py-4 ${isActive ? "border-accent" : "border-transparent"}`
+                `border-b-2 px-2 py-2 text-sm font-medium transition-colors ${isActive ? "border-accent text-primary-foreground" : "border-transparent text-primary-foreground/80 hover:text-primary-foreground"}`
               }
               to="/risk/mine"
             >
@@ -56,7 +67,7 @@ export function AuthenticatedLayout() {
             </NavLink>
             <NavLink
               className={({ isActive }) =>
-                `border-b-2 py-4 ${isActive ? "border-accent" : "border-transparent"}`
+                `border-b-2 px-2 py-2 text-sm font-medium transition-colors ${isActive ? "border-accent text-primary-foreground" : "border-transparent text-primary-foreground/80 hover:text-primary-foreground"}`
               }
               to="/enquiries/mine"
             >
@@ -65,7 +76,7 @@ export function AuthenticatedLayout() {
             {auth.isAuthority && (
               <NavLink
                 className={({ isActive }) =>
-                  `border-b-2 py-4 ${isActive ? "border-accent" : "border-transparent"}`
+                  `border-b-2 px-2 py-2 text-sm font-medium transition-colors ${isActive ? "border-accent text-primary-foreground" : "border-transparent text-primary-foreground/80 hover:text-primary-foreground"}`
                 }
                 to="/authority"
               >
@@ -75,7 +86,7 @@ export function AuthenticatedLayout() {
             {auth.isAuthority && (
               <NavLink
                 className={({ isActive }) =>
-                  `border-b-2 py-4 ${isActive ? "border-accent" : "border-transparent"}`
+                  `border-b-2 px-2 py-2 text-sm font-medium transition-colors ${isActive ? "border-accent text-primary-foreground" : "border-transparent text-primary-foreground/80 hover:text-primary-foreground"}`
                 }
                 to="/authority/audit"
               >
@@ -83,7 +94,7 @@ export function AuthenticatedLayout() {
               </NavLink>
             )}
             {auth.isAuthority && (
-              <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
+              <span className="hidden rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-accent-foreground md:inline-flex">
                 Authority
               </span>
             )}
